@@ -1,0 +1,11 @@
+{%- extends "bootstrap/base.html" %}
+
+{% block content %}
+<h4>Examples</h4>
+<ol>
+<li><a href="{{ url_for('.simple') }}">simple</a></li>
+<li><a href="{{ url_for('.with_loader') }}">with loader</a></li>
+<li><a href="{{ url_for('.read_only_with_loader') }}">read only with loader</a></li>
+</ol>
+
+{%- endblock content %}

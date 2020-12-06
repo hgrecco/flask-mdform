@@ -1,0 +1,49 @@
+{%- extends "bootstrap/base.html" %}
+
+{% import 'bootstrap/wtf.html' as wtf %}
+{% block content %}
+<main role="main">
+   <div class="album py-5 bg-light">
+        <div class="container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="row">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}" role="alert">
+                    <button type="button" class="close" data-dismiss="alert">×</button>
+                    {{ message }}
+                </div>
+            {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+            <div class="row">
+                <div class="container">
+                    {% if form_title %}<h3>{{ form_title }}</h3><br/>{% endif %}
+                    <form class="form" method="post" role="form" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        {% block innerform %}
+                        {% endblock %}
+                        {% if form.submit %}
+                            {{ form.submit(class_="btn btn-primary") }}
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+   </div>
+</main>
+{% endblock %}
+
+{% block head %}
+{{super()}}
+<script language="JavaScript">
+window.onload = function() {
+    $('.nolabel').parent().siblings('label').html('');
+    $('select.collapser').each(function() {
+           var currentSelect = $(this);
+           currentSelect.trigger('change');
+        });
+};
+</script>
+{% endblock %}
