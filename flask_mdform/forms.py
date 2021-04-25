@@ -1,10 +1,10 @@
 """
-    flask_mdform
-    ~~~~~~~~~~~~
+    flask_mdform.mdform_definitions
+    ~~~~~~~~~~~~~~~~~~
 
     Generate a FlaskForm/WTForm from a Markdown based form.
 
-    :copyright: 2020 by hymie Authors, see AUTHORS for more details.
+    :copyright: 2020 by flask-mdform Authors, see AUTHORS for more details.
     :license: BSD, see LICENSE for more details.
 """
 
@@ -66,7 +66,7 @@ class FileSize:
             raise v.ValidationError(
                 self.message
                 or field.gettext(
-                    "File must be between {min_size} and {max_size} bytes.".format(
+                    "File must be between {min_size} and {max_size} bytes.".mdform_definitionat(
                         min_size=self.min_size, max_size=self.max_size
                     )
                 )
@@ -178,28 +178,37 @@ class DictForm:
         return cls(**data)
 
 
-def from_mdstr(mdstr, class_name, read_only=False, block=None, extends=None):
-    """
+def from_mdstr(
+    mdstr, class_name, read_only=False, block=None, extends=None, formatter=None
+):
+    """Generates form metadata, template, form from markdown form.
 
     Parameters
     ----------
-    mdfile
-    read_only
-    class_name
+    mdstr : str
+        markdown content
+    class_name : str
+        class of the form.
+    read_only : bool
+        If true, the folder will be rendered as read-only.
+    block :  str
+        Name of the block where the form is inserted.
+    extends : str
+        Name of the template that is extended.
+    formatter : callable
+        That format variable name and dict to string.
 
     Returns
     -------
     dict, str, FlaskForm
-
     """
-
-    md = Markdown(extensions=["meta", FormExtension(wtf=True)])
+    md = Markdown(extensions=["meta", FormExtension(formatter=formatter)])
     html = md.convert(mdstr)
 
     if read_only:
-        wtform = generate_read_only_form_cls(class_name, md.Form)
+        wtform = generate_read_only_form_cls(class_name, md.mdform_definition)
     else:
-        wtform = generate_form_cls(class_name, md.Form)
+        wtform = generate_form_cls(class_name, md.mdform_definition)
 
     if extends:
         tmpl = '{%- extends "' + extends + '" %}\n'
@@ -216,18 +225,29 @@ def from_mdstr(mdstr, class_name, read_only=False, block=None, extends=None):
     return md.Meta, tmpl, wtform
 
 
-def from_mdfile(mdfile, class_name=None, read_only=False, block=None, extends=None):
-    """
+def from_mdfile(
+    mdfile, class_name=None, read_only=False, block=None, extends=None, formatter=None
+):
+    """Generates form metadata, template, form from markdown form.
 
     Parameters
     ----------
-    mdfile
-    read_only
-    class_name
+    mdstr : str
+        markdown content
+    class_name : str
+        class of the form.
+    read_only : bool
+        If true, the folder will be rendered as read-only.
+    block :  str
+        Name of the block where the form is inserted.
+    extends : str
+        Name of the template that is extended.
+    formatter : callable
+        That format variable name and dict to string.
 
     Returns
     -------
-
+    dict, str, FlaskForm
     """
 
     mdfile = pathlib.Path(mdfile)
@@ -235,12 +255,11 @@ def from_mdfile(mdfile, class_name=None, read_only=False, block=None, extends=No
     class_name = class_name or mdfile.stem
 
     with mdfile.open(mode="r", encoding="utf-8") as fi:
-        return from_mdstr(fi.read(), class_name, read_only, block, extends)
+        return from_mdstr(fi.read(), class_name, read_only, block, extends, formatter)
 
 
 class ReadOnlyForm:
-    """A form that convert all fields into read-only.
-    """
+    """A form that convert all fields into read-only."""
 
     _read_only_attrs = None
 
@@ -330,7 +349,14 @@ def generate_form_cls(name, fields, base_cls=FlaskForm):
     -------
     FlaskForm
     """
-    cls = type(name, (DictForm, base_cls,), {})
+    cls = type(
+        name,
+        (
+            DictForm,
+            base_cls,
+        ),
+        {},
+    )
     for label, field in fields.items():
         setattr(cls, label, generate_field(label, field))
 
