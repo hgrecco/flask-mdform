@@ -24,54 +24,9 @@ flask-mdform
 ============
 
 An extension for Flask_ to generate `Flask-WTF`_ parsing Markdown
-based document using mdforms_. The syntax
+based document using mdforms_. Checkout the syntax in the mdform
+page.
 
-This document:
-
-.. code-block::
-
-    Please fill this form:
-
-    name* = ___
-    email = @
-
-    And also this important question:
-
-    Do you like this = () YES () NO
-
-will generate the following jinja template:
-
-.. code-block::
-
-    Please fill this form:
-
-    {{ form.name }}
-    {{ form.email }}
-
-    And also this important question:
-
-    {{ form.do_you_like_this }}
-
-
-and this dict:
-
-.. code-block::python
-
-    {'name': {'type': 'StringField',
-              'required': True,
-              'length': None
-              },
-     'email': {'type': 'EmailField',
-               'required': False
-              },
-     'do_you_like_this': {'type': 'OptionField',
-                          'required': False,
-                          'items': ('YES', 'NO'),
-                          'default': None
-                          }
-    }
-
-that you can consume to generate a form.
 
 Installation
 ------------
@@ -83,206 +38,41 @@ Installation
 Usage
 -----
 
+Use it like this to create a `WTForm`_ compatible template:
+
 .. code-block::python
 
-    >>> import markdown
-    >>> from flask-mdform import FormExtension
-    >>> md = markdown.Markdown(extensions = [FormExtension()])
-    >>> html = md.convert(text)  # this is the jinja template
+    >>> from flask_mdform import Markdown, FormExtension, flask_wtf
+    >>> md = Markdown(extensions = [FormExtension(formatter=flask_wtf)])
+    >>> html = md.convert(text)  # this is the jinja template with Flask WTForm
     >>> form_dict = md.Form      # this is the definition dict
 
-or use it like this to create a `WTForm`_ compatible template:
+or use it like this to create a `WTForm`_ compatible template that uses Bootstrap4_.
 
-    >>> import markdown
-    >>> from flask-mdform import FormExtension
-    >>> md = markdown.Markdown(extensions = [FormExtension(wtf=True)])
-    >>> html = md.convert(text)  # this is the jinja template
+    >>> from flask_mdform import Markdown, FormExtension, flask_wtf_bs4
+    >>> md = Markdown(extensions = [FormExtension(formatter=flask_wtf_bs4("jQuery", "wtf."))])
+    >>> html = md.convert(text)  # this is the jinja template with Flask WTForm and BS4
     >>> form_dict = md.Form      # this is the definition dict
 
+Here, the two arguments in the formatter can be use it to customize it. "jQuery" is the name
+of the jQuery variable, "wtf." is the prefix where WTForm bootstrap **form_field** function
+is located.
 
-Syntax
-------
+Other functions
+---------------
 
-The syntax is strongly based on this wmd_ fork.
+**use_mdform**: decorator to be used in a flask route to parse, display, load and
+store form and its values.
 
-Text fields
-~~~~~~~~~~~
+**form_to_dict**: iterates through a filled form and returns a dictionary
+with the values in a json compatible format.
 
-.. code-block::
+**dict_to_formdict**: iterates through a dict, parsing each value using the
+spec defined in form_cls.
 
-    name = ___
+**from_mdfile**: generates form metadata, template, form from markdown file.
 
-or:
-
-.. code-block::
-
-    name = ___[50]
-
-Exactly 3 underscores will be matched. Any more will be handled as standard underline directives.
-
-
-Text area
-~~~~~~~~~
-
-.. code-block::
-
-    name = AAA
-
-or:
-
-.. code-block::
-
-    name = AAA[50]
-
-Exactly 3 slashes will be matched.
-
-
-Radio buttons
-~~~~~~~~~~~~~
-
-.. code-block::
-
-    sex = (x) male () female
-
-The option with an `x` will be the default.
-
-
-Check boxes
-~~~~~~~~~~~
-
-.. code-block::
-
-    phones = [] Android [x] iPhone [x] Blackberry
-
-The option with an `x` will be the default.
-
-
-Drop down
-~~~~~~~~~
-
-.. code-block::
-
-    city = {BOS, SFO, (NYC)}
-
-Or with user-friendly labels:
-
-.. code-block::
-
-    city = {BOS -> Boston, SFO -> San Francisco, (NYC -> New York City)}
-
-.. code-block::
-
-    city = {BOS, SFO, (NYC -> New York City)}
-
-The option in parenthesis will be the default.
-
-
-File Field
-~~~~~~~~~~
-
-.. code-block::
-
-    name = ...
-
-or:
-
-.. code-block::
-
-    name = ...[png]
-
-
-.. code-block::
-
-    name = ...[png,jpg]
-
-
-.. code-block::
-
-    name = ...[png,jpg;Only image files]
-
-
-DateField
-~~~~~~~~~
-
-.. code-block::
-
-    name = d/m/y
-
-
-TimeField
-~~~~~~~~~
-
-.. code-block::
-
-    name = hh:mm
-
-
-
-Required fields
-~~~~~~~~~~~~~~~
-
-To flag a field as required, just add an asterisk after the name.
-
-.. code-block::
-
-    zip code* = ___
-
-
-Sections
-~~~~~~~~
-
-In certain cases is useful to create a named section.
-
-.. code-block::
-
-    [section:university]
-
-    name = ___
-
-    [section:school]
-
-    name = ___
-
-will render as:
-
-    {{ form.university_name }}
-    {{ form.school_name }}
-
-and:
-
-.. code-block::
-
-    {'university_name': {'type': 'StringField',
-                         'required': True,
-                         'length': None
-                         },
-     'school_name': {'type': 'StringField',
-                     'required': True,
-                     'length': None
-                     }
-    }
-
-
-Collapsable parts
-~~~~~~~~~~~~~~~~~
-
-In certain cases is useful to create a part of the form which collapses based
-on the value of a dropdown box. Just use the modifier `[c]` for the dropdown item
-that will collapse the part of the html and enclose the collapsable part as
-shown:
-
-.. code-block::
-
-    extra = {Yes, (No[c])}
-
-    [collapse:extra]
-
-    name = ___
-
-    [endcollapse]
-
-The `extra` in the `collapse` tag indicates which dropdown box is used as control.
-
+**from_mdstr**: generates form metadata, template, form from markdown string.
 
 See AUTHORS_ for a list of the maintainers.
 
@@ -296,3 +86,4 @@ see CHANGES_
 .. _`AUTHORS`: https://github.com/hgrecco/flask-mdform/blob/master/AUTHORS
 .. _`CHANGES`: https://github.com/hgrecco/flask-mdform/blob/master/CHANGES
 .. _`WTForm`: https://wtforms.readthedocs.io/
+.. _Bootstrap4: https://pypi.org/project/Flask-Bootstrap4/
