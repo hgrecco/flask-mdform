@@ -16,7 +16,6 @@ from warnings import warn
 
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileField, FileRequired, FileStorage
-from markdown import Markdown
 from wtforms import (
     Field,
     RadioField,
@@ -30,7 +29,7 @@ from wtforms.fields.html5 import DateField
 from wtforms.widgets.core import HTMLString, TextInput
 from wtforms_components import TimeField, read_only
 
-from mdform import FormExtension
+from mdform import FormExtension, Markdown
 
 FORMATTERS: Dict[str, Callable[[Dict[str, Any]], Field]] = {}
 
