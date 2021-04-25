@@ -5,8 +5,9 @@ import os
 
 from flask import Flask, render_template
 from flask_bootstrap import Bootstrap
-from flask_mdform import mdform
 from flask_wtf import CSRFProtect
+
+from flask_mdform import mdform
 
 app = Flask(__name__)
 SECRET_KEY = os.urandom(32)
