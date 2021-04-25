@@ -40,7 +40,7 @@ Usage
 
 Use it like this to create a `WTForm`_ compatible template:
 
-.. code-block::python
+.. code-block:: python
 
     >>> from flask_mdform import Markdown, FormExtension, flask_wtf
     >>> md = Markdown(extensions = [FormExtension(formatter=flask_wtf)])
@@ -48,6 +48,8 @@ Use it like this to create a `WTForm`_ compatible template:
     >>> form_dict = md.Form      # this is the definition dict
 
 or use it like this to create a `WTForm`_ compatible template that uses Bootstrap4_.
+
+.. code-block:: python
 
     >>> from flask_mdform import Markdown, FormExtension, flask_wtf_bs4
     >>> md = Markdown(extensions = [FormExtension(formatter=flask_wtf_bs4("jQuery", "wtf."))])
