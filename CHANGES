@@ -4,7 +4,7 @@ flask-mdform Changelog
 0.2 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Updated dependency mdform>=0.3.1 to make it easier to use.
 
 
 0.1 (2021-04-25)
