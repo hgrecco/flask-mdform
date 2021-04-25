@@ -67,7 +67,7 @@ def render_mdform(
     return current_app.jinja_env.from_string(tmpl_str).render(form=form)
 
 
-def mdform(
+def use_mdform(
     mdfile=None,
     block="innerform",
     extends="form.html",
