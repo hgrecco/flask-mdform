@@ -42,7 +42,7 @@ def flask_wtf_bs4(jquery_var="jQuery", wtf_prefix="wtf."):
 
             if jquery_var:
                 args.append(
-                    f""" onchange="{jquery_var}('#accordion-{variable_name}').toggle({jquery_var}(this).val() {comparator} '{collapse_on}');" """
+                    f"""onchange="{jquery_var}('#accordion-{variable_name}').toggle({jquery_var}(this).val() {comparator} '{collapse_on}');" """
                 )
 
         args.append('class="%s"' % " ".join("%s" % c for c in tag_class))
