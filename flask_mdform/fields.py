@@ -128,7 +128,8 @@ def from_mdfield(f: mdfields.Field):
 
     sf = f.specific_field
 
-    if length := getattr(sf, "length", None):
+    length = getattr(sf, "length", None)
+    if length:
         validators.append(v.length(max=length))
 
     if isinstance(sf, mdfields.StringField):
