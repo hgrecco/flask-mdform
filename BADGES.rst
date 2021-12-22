@@ -10,11 +10,15 @@
     :target: https://pypi.python.org/pypi/flask-mdform
     :alt: Python Versions
 
-.. image:: https://travis-ci.org/hgrecco/flask-mdform.svg?branch=master
-    :target: https://travis-ci.org/hgrecco/flask-mdform
+.. image:: https://github.com/hgrecco/flask-mdform/workflows/CI/badge.svg
+    :target: https://github.com/hgrecco/flask-mdform/actions?query=workflow%3ACI
     :alt: CI
 
-.. image:: https://coveralls.io/repos/github/hgrecco/flask-mdform/badge.svg?branch=master
-    :target: https://coveralls.io/github/hgrecco/flask-mdform?branch=master
-    :alt: Coverage
+.. image:: https://github.com/hgrecco/flask-mdform/workflows/Lint/badge.svg
+    :target: https://github.com/hgrecco/flask-mdform/actions?query=workflow%3ALint
+    :alt: LINTER
 
+
+.. image:: https://coveralls.io/repos/github/hgrecco/flask-mdform/badge.svg?branch=main
+    :target: https://coveralls.io/github/hgrecco/flask-mdform?branch=main
+    :alt: Coverage
