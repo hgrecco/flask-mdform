@@ -44,11 +44,14 @@ def test_serialize(app):
         == data_test.FORM_KWARGS_ALL
     )
 
-    assert generate_form_kwargs(
-        BasicForm,
-        {**data_test.SERIALIZED_ALL, "not_a_field": True},
-        on_missing_field="add",
-    ) == {**data_test.FORM_KWARGS_ALL, "not_a_field": True}
+    assert (
+        generate_form_kwargs(
+            BasicForm,
+            {**data_test.SERIALIZED_ALL, "not_a_field": True},
+            on_missing_field="add",
+        )
+        == {**data_test.FORM_KWARGS_ALL, "not_a_field": True}
+    )
 
     with app.app_context():
         filled_form = BasicForm(**data_test.FORM_KWARGS_ALL)
