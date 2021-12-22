@@ -1,6 +1,6 @@
 {%- extends "base.html" %}
 
-{% import wtf.html %}
+{% import 'wtf.html' as wtf %}
 
 {% block content %}
 <main role="main">
@@ -21,7 +21,9 @@
             <div class="row">
                 <div class="container">
                     {% if form_title %}<h3>{{ form_title }}</h3><br/>{% endif %}
-                    <form class="form" method="post" role="form" enctype="multipart/form-data">
+                    <form class="form" method="post" role="form"
+                          enctype="multipart/form-data"
+                          action="{{ url_for('.submit', uid=request.view_args['uid']) }}">
                         {{ form.hidden_tag() }}
                         {% block innerform %}
                         {% endblock %}

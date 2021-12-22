@@ -1,8 +1,23 @@
-Please fill this form:
+## Please fill this form:
 
-name* = ___
+Title* = ___
+
+Description = AAA
+
 email = @
 
-And also this important question:
+IMDB Rating Votes = ###
 
-Do you like this = {YES, NO}
+IMDB Rating = #.#f
+
+Ticket value = #.#
+
+Release Date = d/m/y
+
+Duration = hh:mm
+
+Color = () Yes () No 
+
+Genres = [] Action [] Sci-Fi [] Comedy [] Documentary
+
+MPA Movie Rating = {G General Audiences, PG Parental Guidance Suggested, PG13 Parents Strongly Cautioned, R Restricted, NC 17 Adults Only}

@@ -1,11 +1,9 @@
 {%- extends "bootstrap/base.html" %}
-
 {% block content %}
 <h4>Examples</h4>
 <ol>
-<li><a href="{{ url_for('.simple') }}">simple</a></li>
-<li><a href="{{ url_for('.with_loader') }}">with loader</a></li>
-<li><a href="{{ url_for('.read_only_with_loader') }}">read only with loader</a></li>
+<li><a href="{{ url_for('.read_only', uid=1) }}">View data as read-only</a></li>
+<li><a href="{{ url_for('.editable', uid=1) }}">Load data into a form to then submit</a></li>
 </ol>
 
 {%- endblock content %}
