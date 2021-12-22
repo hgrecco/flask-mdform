@@ -32,7 +32,8 @@ def flask_wtf_bs4(jquery_var="jQuery", wtf_prefix="wtf."):
         if field.is_label_hidden:
             tag_class.append("nolabel")
 
-        if collapse_on := getattr(field.specific_field, "collapse_on", None):
+        collapse_on = getattr(field.specific_field, "collapse_on", None)
+        if collapse_on:
             if collapse_on.startswith("~"):
                 collapse_on = collapse_on[1:]
                 comparator = "==="
@@ -48,7 +49,8 @@ def flask_wtf_bs4(jquery_var="jQuery", wtf_prefix="wtf."):
 
         args.append('class="%s"' % " ".join("%s" % c for c in tag_class))
 
-        if length := getattr(field.specific_field, "length", None):
+        length = getattr(field.specific_field, "length", None)
+        if length:
             args.append("maxlength=%d" % length)
 
         return "{{ %sform_field(%s) }}" % (wtf_prefix, ", ".join(args))
