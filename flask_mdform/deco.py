@@ -50,7 +50,7 @@ def in_app_get_config(key):
 
 
 def in_app_get_mdfile():
-    return request.view_args.get("mdform", request.endpoint.replace(".", "/"))
+    return request.view_args.get("mdfile", request.endpoint.replace(".", "/"))
 
 
 @functools.lru_cache(maxsize=None)

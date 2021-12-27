@@ -39,9 +39,9 @@ def test_get_form_ro(app, client):
     def by_arg(username):
         return data_test.DATA[username]
 
-    @app.route("/<path:mdform>/<username>", methods=["GET"])
+    @app.route("/<path:mdfile>/<username>", methods=["GET"])
     @on_get_form(read_only=True)
-    def by_view_arg(mdform, username):
+    def by_view_arg(mdfile, username):
         return data_test.DATA[username]
 
     ret = client.get("/peter@capusotto.com")
