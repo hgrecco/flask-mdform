@@ -28,12 +28,14 @@
 flask-mdform
 ============
 
-mdform_ allows you to write a form in an easy-to-read plain text format
-that can be parsed to produce a fully functional form. You can checkout
-its expresive syntax in the mdform_ repo.
+If you arrive here, you probably know mdform_. If not, briefly it allows
+you to write a form in an easy-to-read plain text format that can be
+parsed to produce a fully functional form. You can checkout
+its expressive syntax in the mdform_ repo.
 
 Flask-mdform brings this power to Flask_ by providing functions and
 decorators to generate `Flask-WTF`_ forms within your app.
+
 
 Installation
 ------------
@@ -45,14 +47,14 @@ Installation
 Usage
 -----
 
-Just put your markdwn form files in `templates/md/`, for example your `personal.md`
+Just put your markdwn form files in **templates/md/**, for example your **personal.md**
 
 .. code-block:: markdown
 
     name* = ___
     age* = ###
 
-and then add the `on_get_form` decorator to your route.
+and then add the ``on_get_form`` decorator to your route.
 
 .. code-block:: python
 
@@ -73,7 +75,7 @@ and then add the `on_get_form` decorator to your route.
         return dict(name="John", age=42)
 
 If you want to set the name of the form file independently of the endpoint
-just use the `mdfile` keyword argument:
+just use the ``mdfile`` keyword argument:
 
 .. code-block:: python
 
@@ -87,7 +89,7 @@ just use the `mdfile` keyword argument:
         return dict(name="John", age=42)
 
 
-To handle the form submission, use the `on_submit_form` decorator.
+To handle the form submission, use the ``on_submit_form`` decorator.
 
 .. code-block:: python
 
@@ -115,7 +117,7 @@ To handle the form submission, use the `on_submit_form` decorator.
         return "Thanks for submitting!"
 
 If you just want to render a read-only version of the form with the submitted
-data, just raise NotImplementedError
+data, just raise ``NotImplementedError``
 
 .. code-block:: python
 
@@ -128,7 +130,7 @@ data, just raise NotImplementedError
 
 
 In certain cases, you might want load a form depending on the route. Just provide a
-route argument named `mdfile`.
+route argument named ``mdfile``.
 
 .. code-block:: python
 
@@ -137,19 +139,19 @@ route argument named `mdfile`.
         def by_view_arg(mdfile):
             return dict(name="John", age=42)
 
-this will return the `templates/md/personal.md` if you navigate to `/form/personal`.
+this will return the **templates/md/personal.md** if you navigate to */form/personal*.
 
 
 Customizing decorators
 ----------------------
 
-Arguments of these decorators (`on_get_form` and `on_submit_form`) can
+Arguments of these decorators (``on_get_form`` and ``on_submit_form``) can
 be used to customize the output:
 
 - **mdfile**: (str) Allows you to customize the mdform file name, do not use
   the extension here.
-  All files will be looked in `templates/md/` folder and should have the
-  extension `.md` (Default: `None`, which means that  defaults first to `mdform`
+  All files will be looked in **templates/md/** folder and should have the
+  extension ``.md``  (Default: ``None``, which means that  defaults first to ``mdform`
   view argument or then to `endpoint`)
 - **read_only**: (bool) If True, the form will be displayed as non-editable readonly
   form.
@@ -182,13 +184,13 @@ keys and values by default:
 ----------------------
 
 In certain cases you want to handle your the routes yourself. The function
-**render_mdform** is analogous to the Flask `render_template` but it allows
-you to show and mdform. It has the same arguments as `on_get_form` and
-`on_submit_form` with two additional arguments
+**render_mdform** is analogous to the Flask ``render_template`` but it allows
+you to show and mdform. Ito has the same arguments as ``on_get_form`` and
+``on_submit_form`` with two additional arguments
 
 - **data**: (dict) mapping from labels to values to fill the form with.
 - **on_submit**: (callable) function to be called upon submission.
-  Arguments are `on_submit(form, **request.view_args)` and should
+  Arguments are ``on_submit(form, **request.view_args)`` and should
   return the page to show.
 
 
