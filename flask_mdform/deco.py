@@ -33,7 +33,7 @@ DEFAULTS = {
 }
 
 
-def flash_form_errors(form):
+def _flash_form_errors(form):
     """Flashes form errors"""
     for field, errors in form.errors.items():
         for error in errors:
@@ -155,7 +155,7 @@ def render_mdform(
             )
 
     if flash_form_errors:
-        flash_form_errors(form)
+        _flash_form_errors(form)
 
     return current_app.jinja_env.from_string(tmpl_str).render(form=form, meta=meta)
 
