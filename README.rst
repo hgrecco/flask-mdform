@@ -28,10 +28,12 @@
 flask-mdform
 ============
 
-An extension for Flask_ to generate `Flask-WTF`_ parsing Markdown
-based document using mdforms_. Checkout the syntax in the mdform
-page.
+mdform_ allows you to write a form in an easy-to-read plain text format
+that can be parsed to produce a fully functional form. You can checkout
+its expresive syntax in the mdform_ repo.
 
+Flask-mdform brings this power to Flask_ by providing functions and
+decorators to generate `Flask-WTF`_ forms within your app.
 
 Installation
 ------------
@@ -43,54 +45,164 @@ Installation
 Usage
 -----
 
-Use it like this to create a `WTForm`_ compatible template:
+Just put your markdwn form files in `templates/md/`, for example your `personal.md`
+
+.. code-block:: markdown
+
+    name* = ___
+    age* = ###
+
+and then add the `on_get_form` decorator to your route.
 
 .. code-block:: python
 
-    >>> from flask_mdform import Markdown, FormExtension, flask_wtf
-    >>> md = Markdown(extensions = [FormExtension(formatter=flask_wtf)])
-    >>> html = md.convert(text)  # this is the jinja template with Flask WTForm
-    >>> form_dict = md.Form      # this is the definition dict
+    @app.route("/by_endpoint", methods=["GET"])
+    @on_get_form()
+    def personal():
+        """As the endpoint is named `personal`, flask-mdform
+        will load, parse and display:
 
-or use it like this to create a `WTForm`_ compatible template that uses Bootstrap4_.
+            templates/md/personal.md
+
+        This function should return a dictionary
+        that maps form labels to the values to show.
+
+        (missing values in the dict will just leave
+        the form field as is)
+        """
+        return dict(name="John", age=42)
+
+If you want to set the name of the form file independently of the endpoint
+just use the `mdfile` keyword argument:
 
 .. code-block:: python
 
-    >>> from flask_mdform import Markdown, FormExtension, flask_wtf_bs4
-    >>> md = Markdown(extensions = [FormExtension(formatter=flask_wtf_bs4("jQuery", "wtf."))])
-    >>> html = md.convert(text)  # this is the jinja template with Flask WTForm and BS4
-    >>> form_dict = md.Form      # this is the definition dict
+    @app.route("/by_arg", methods=["GET"])
+    @on_get_form(mdfile="personal")
+    def by_arg():
+        """This will also load, parse and display:
 
-Here, the two arguments in the formatter can be use it to customize it. "jQuery" is the name
-of the jQuery variable, "wtf." is the prefix where WTForm bootstrap **form_field** function
-is located.
+            templates/md/personal.md
+        """
+        return dict(name="John", age=42)
 
-Other functions
----------------
 
-**use_mdform**: decorator to be used in a flask route to parse, display, load and
-store form and its values.
+To handle the form submission, use the `on_submit_form` decorator.
 
-**form_to_dict**: iterates through a filled form and returns a dictionary
-with the values in a json compatible format.
+.. code-block:: python
 
-**dict_to_formdict**: iterates through a dict, parsing each value using the
-spec defined in form_cls.
+    @app.route("/submit", methods=["POST"])
+    @on_submit_form(mdfile="personal")
+    def submit(form):
+        """This will get the form definition from:
 
-**from_mdfile**: generates form metadata, template, form from markdown file.
+            templates/md/personal.md
 
-**from_mdstr**: generates form metadata, template, form from markdown string.
+        The argument `form` is contains the filled form after validation.
+
+        Use `form.to_plain_dict()` to obtain a dictionary mapping label names
+        to values.
+
+        By the way, you can can call `Form.from_plain_dict(values)` to fill
+        obtain a filled form object from Form class.
+
+        This function should return the webpage to show after. Any flask
+        response will work (a string, rendering a template, a redirect, etc).
+        """
+
+        # If you have a save function, you can:
+        #   save(form.to_plain_dict())
+        return "Thanks for submitting!"
+
+If you just want to render a read-only version of the form with the submitted
+data, just raise NotImplementedError
+
+.. code-block:: python
+
+    @app.route("/submit", methods=["POST"])
+    @on_submit_form(mdfile="personal")
+    def submit(form):
+        # If you have a save function, you can:
+        #   save(form.to_plain_dict())
+        raise NotImplementedError
+
+
+In certain cases, you might want load a form depending on the route. Just provide a
+route argument named `mdfile`.
+
+.. code-block:: python
+
+        @app.route("/form/<mdfile>", methods=["GET"])
+        @on_get_form()
+        def by_view_arg(mdfile):
+            return dict(name="John", age=42)
+
+this will return the `templates/md/personal.md` if you navigate to `/form/personal`.
+
+
+Customizing decorators
+----------------------
+
+Arguments of these decorators (`on_get_form` and `on_submit_form`) can
+be used to customize the output:
+
+- **mdfile**: (str) Allows you to customize the mdform file name, do not use
+  the extension here.
+  All files will be looked in `templates/md/` folder and should have the
+  extension `.md` (Default: `None`, which means that  defaults first to `mdform`
+  view argument or then to `endpoint`)
+- **read_only**: (bool) If True, the form will be displayed as non-editable readonly
+  form.
+  (Default: False)
+- **block**: (str) Name of the Jinja_ block where the form will be inserted.
+  (Default: None, which means it should use the config value in `MDFORM_BLOCK`)
+- **extends**: (str) Name of the Jinja_ template to use.
+  (Default: None, which means it should use the config value in `MDFORM_EXTENDS`)
+- **formatter**: (callable) Function to write a field to a template. mdform_
+  (Default: None, which means it should use the config value in `MDFORM_FORMATTER`)
+- **flash_form_errors**: (bool) If True, calls FlashError_ for the form arguments.
+  Showing the errors must be called in the template.
+  (Default: True)
+
+
+Configuration Handling
+----------------------
+
+Flask allows to write application wide configurations. `Flask-mdforms` has the following
+keys and values by default:
+
+.. code-block:: python
+
+    MDFORM_EXTENDS = "form.html"
+    MDFORM_BLOCK = "innerform"
+    MDFORM_FORMATTER = formatters.flask_wtf
+
+
+(A little) lower level
+----------------------
+
+In certain cases you want to handle your the routes yourself. The function
+**render_mdform** is analogous to the Flask `render_template` but it allows
+you to show and mdform. It has the same arguments as `on_get_form` and
+`on_submit_form` with two additional arguments
+
+- **data**: (dict) mapping from labels to values to fill the form with.
+- **on_submit**: (callable) function to be called upon submission.
+  Arguments are `on_submit(form, **request.view_args)` and should
+  return the page to show.
+
 
 See AUTHORS_ for a list of the maintainers.
 
 To review an ordered list of notable changes for each version of a project,
 see CHANGES_
 
-
 .. _Flask: https://github.com/pallets/flask
 .. _`Flask-WTF`: https://github.com/lepture/flask-wtf
-.. _mdforms: https://github.com/hgrecco/mdform
+.. _mdform: https://github.com/hgrecco/mdform
 .. _`AUTHORS`: https://github.com/hgrecco/flask-mdform/blob/master/AUTHORS
 .. _`CHANGES`: https://github.com/hgrecco/flask-mdform/blob/master/CHANGES
 .. _`WTForm`: https://wtforms.readthedocs.io/
 .. _Bootstrap4: https://pypi.org/project/Flask-Bootstrap4/
+.. _FlashError: https://flask.palletsprojects.com/en/2.0.x/patterns/flashing/
+.. _Jinja: https://jinja.palletsprojects.com/
