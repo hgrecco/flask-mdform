@@ -24,18 +24,16 @@ CLASS_NAME = CONFIG_PREFIX + "CLASS_NAME"
 BLOCK = CONFIG_PREFIX + "BLOCK"
 EXTENDS = CONFIG_PREFIX + "EXTENDS"
 FORMATTER = CONFIG_PREFIX + "FORMATTER"
-FLASH_ERRORS = CONFIG_PREFIX + "FLASH_ERRORS"
 
 DEFAULTS = {
     CLASS_NAME: "MDForm",
     EXTENDS: "form.html",
     BLOCK: "innerform",
     FORMATTER: formatters.flask_wtf,
-    FLASH_ERRORS: True,
 }
 
 
-def flash_errors(form):
+def flash_form_errors(form):
     """Flashes form errors"""
     for field, errors in form.errors.items():
         for error in errors:
@@ -96,7 +94,7 @@ def render_mdform(
     formatter=None,
     data=None,
     on_submit=None,
-    call_flash_errors=None
+    flash_form_errors=None
 ):
     """Renders an mdform with flask (with or without data)
 
@@ -123,8 +121,8 @@ def render_mdform(
         That format variable name and dict to string.
     on_submit : callable or None
         Functional that will be called upon form submission.
-    call_flash_errors : bool
-        Call flash errors. (default: True)
+    flash_form_errors : bool
+        Call flash errors for a given form. (default: True)
 
     Returns
     -------
@@ -152,12 +150,14 @@ def render_mdform(
                 formatter=formatter,
             )
             form = Form.from_plain_dict(form.to_plain_dict())
-            return current_app.jinja_env.from_string(tmpl_str).render(form=form)
+            return current_app.jinja_env.from_string(tmpl_str).render(
+                form=form, meta=meta
+            )
 
-    if call_flash_errors:
-        flash_errors(form)
+    if flash_form_errors:
+        flash_form_errors(form)
 
-    return current_app.jinja_env.from_string(tmpl_str).render(form=form)
+    return current_app.jinja_env.from_string(tmpl_str).render(form=form, meta=meta)
 
 
 def on_get_form(
@@ -166,7 +166,7 @@ def on_get_form(
     block=None,
     extends=None,
     formatter=None,
-    call_flash_errors=True,
+    flash_form_errors=True,
 ):
     """Flask decorator for app routes that renders a form,
     calling then wrapped function on successful form submission.
@@ -184,7 +184,7 @@ def on_get_form(
         Name of the template that is extended.
     formatter : callable
         That format variable name and dict to string.
-    call_flash_errors : bool
+    flash_form_errors : bool
         Call flash errors. (default: True)
     """
 
@@ -204,7 +204,7 @@ def on_get_form(
                 formatter=formatter,
                 data=f(**request.view_args),
                 on_submit=None,
-                call_flash_errors=call_flash_errors,
+                flash_form_errors=flash_form_errors,
             )
 
         return decorated_function
@@ -218,7 +218,7 @@ def on_submit_form(
     block=None,
     extends=None,
     formatter=None,
-    call_flash_errors=True,
+    flash_form_errors=True,
 ):
     """Flask decorator for app routes that renders a form,
     calling then wrapped function on successful form submission.
@@ -236,7 +236,7 @@ def on_submit_form(
         Name of the template that is extended.
     formatter : callable
         That format variable name and dict to string.
-    call_flash_errors : bool
+    flash_form_errors : bool
         Call flash errors. (default: True)
     """
 
@@ -256,7 +256,7 @@ def on_submit_form(
                 formatter=formatter,
                 data=None,
                 on_submit=f,
-                call_flash_errors=call_flash_errors,
+                flash_form_errors=flash_form_errors,
             )
 
         return decorated_function
