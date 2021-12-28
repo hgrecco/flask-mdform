@@ -39,7 +39,12 @@ def test_get_form_ro(app, client):
     def by_arg(username):
         return data_test.DATA[username]
 
-    @app.route("/<path:mdfile>/<username>", methods=["GET"])
+    @app.route("/<mdfile>/<username>", methods=["GET"])
+    @on_get_form(read_only=True)
+    def by_view_arg_str(mdfile, username):
+        return data_test.DATA[username]
+
+    @app.route("/path/<path:mdfile>/<username>", methods=["GET"])
     @on_get_form(read_only=True)
     def by_view_arg(mdfile, username):
         return data_test.DATA[username]
@@ -49,6 +54,8 @@ def test_get_form_ro(app, client):
     ret = client.get("/by_arg/peter@capusotto.com")
     assert ret.data.decode("utf-8") == data_test.RENDERED_JINJA_WTF_INDEX_PETER_RO
     ret = client.get("/index/peter@capusotto.com")
+    assert ret.data.decode("utf-8") == data_test.RENDERED_JINJA_WTF_INDEX_PETER_RO
+    ret = client.get("/path/index/peter@capusotto.com")
     assert ret.data.decode("utf-8") == data_test.RENDERED_JINJA_WTF_INDEX_PETER_RO
 
 
