@@ -15,11 +15,10 @@ import pathlib
 from datetime import date, time
 
 from flask_wtf import FlaskForm
-from wtforms import SubmitField
-from wtforms_components import read_only
-
 from mdform import FormExtension, Markdown
 from mdform import fields as mdform_fields
+from wtforms import SubmitField
+from wtforms_components import read_only
 
 from . import fields
 

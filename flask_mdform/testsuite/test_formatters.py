@@ -1,4 +1,5 @@
 import mdform
+
 from flask_mdform import formatters
 from flask_mdform.testsuite import data_test
 

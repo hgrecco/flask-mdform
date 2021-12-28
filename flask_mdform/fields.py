@@ -15,6 +15,7 @@ from __future__ import annotations
 
 from flask_wtf.file import FileAllowed, FileField, FileRequired, FileStorage
 from markupsafe import Markup
+from mdform import fields as mdfields
 from wtforms import (
     DateField,
     DecimalField,
@@ -29,8 +30,6 @@ from wtforms import (
 )
 from wtforms import validators as v
 from wtforms import widgets
-
-from mdform import fields as mdfields
 
 
 class ListWidgetPlus(widgets.ListWidget):
