@@ -193,6 +193,12 @@ you to show and mdform. Ito has the same arguments as ``on_get_form`` and
   Arguments are ``on_submit(form, **request.view_args)`` and should
   return the page to show.
 
+Finally, you can check some simple demonstrations in the the **examples** for folder.
+
+
+Enjoy!
+
+----
 
 See AUTHORS_ for a list of the maintainers.
 
