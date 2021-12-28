@@ -59,7 +59,7 @@ def in_app_from_mdfile(
     class_name=None,
     block=None,
     extends=None,
-    formatter=None
+    formatter=None,
 ):
     """A cached version of `from_mdfile` that must be used within an flask app."""
     mdfile_name = mdfile + ".md"
@@ -94,7 +94,8 @@ def render_mdform(
     formatter=None,
     data=None,
     on_submit=None,
-    flash_form_errors=None
+    flash_form_errors=None,
+    tmpl_context=None,
 ):
     """Renders an mdform with flask (with or without data)
 
@@ -121,13 +122,25 @@ def render_mdform(
         That format variable name and dict to string.
     on_submit : callable or None
         Functional that will be called upon form submission.
-    flash_form_errors : bool
+    flash_form_errors : bool or callable
         Call flash errors for a given form. (default: True)
+        Alternatively, a callable that takes a `flask_wtf.FlaskForm` form object
+        and calls `flask.flash` can be used to customize the error message.
+    tmpl_context : dict or None
+        the variables that should be available in the context of the template.
 
     Returns
     -------
     Return a rendered form.
     """
+
+    tmpl_context = tmpl_context or {}
+
+    for key in ("form", "meta"):
+        if key in tmpl_context:
+            raise ValueError(
+                f"'{key}' cannot be a key in the `tmpl_context` dict as it is reserved by flask-mdform"
+            )
 
     meta, tmpl_str, Form = in_app_from_mdfile(
         mdfile, read_only=read_only, block=block, extends=extends, formatter=formatter
@@ -154,10 +167,14 @@ def render_mdform(
                 form=form, meta=meta
             )
 
-    if flash_form_errors:
+    if callable(flash_form_errors):
+        flash_form_errors(form)
+    elif flash_form_errors:
         _flash_form_errors(form)
 
-    return current_app.jinja_env.from_string(tmpl_str).render(form=form, meta=meta)
+    return current_app.jinja_env.from_string(tmpl_str).render(
+        form=form, meta=meta, **tmpl_context
+    )
 
 
 def on_get_form(
@@ -176,16 +193,20 @@ def on_get_form(
     mdfile : str
         Filename of the markdown file (without .md extension)
         The file is loaded from the flask template folder.
+    block :  str or None
+        Name of the block where the form is inserted.
+        If None, use app.config["MDFORM_BLOCK"] which is "innerform" by default.
+    extends : str or None
+        Name of the template that is extended.
+        If None, use app.config["MDFORM_EXTENDS"] which is "form.html" by default.
     read_only : bool
         If true, the folder will be rendered as read-only.
-    block :  str
-        Name of the block where the form is inserted.
-    extends : str
-        Name of the template that is extended.
     formatter : callable
         That format variable name and dict to string.
-    flash_form_errors : bool
-        Call flash errors. (default: True)
+    flash_form_errors : bool or callable
+        Call flash errors for a given form. (default: True)
+        Alternatively, a callable that takes a `flask_wtf.FlaskForm` form object
+        and calls `flask.flash` can be used to customize the error message.
     """
 
     def decorator(f):
@@ -196,15 +217,23 @@ def on_get_form(
 
             mdfile = mdfile or in_app_get_mdfile()
 
+            data = f(**request.view_args)
+
+            if isinstance(data, tuple):
+                data, tmpl_context = data
+            else:
+                tmpl_context = dict()
+
             return render_mdform(
                 mdfile,
                 read_only=read_only,
                 block=block,
                 extends=extends,
                 formatter=formatter,
-                data=f(**request.view_args),
+                data=data,
                 on_submit=None,
                 flash_form_errors=flash_form_errors,
+                tmpl_context=tmpl_context,
             )
 
         return decorated_function
@@ -228,16 +257,20 @@ def on_submit_form(
     mdfile : str
         Filename of the markdown file (without .md extension)
         The file is loaded from the flask template folder.
+    block :  str or None
+        Name of the block where the form is inserted.
+        If None, use app.config["MDFORM_BLOCK"] which is "innerform" by default.
+    extends : str or None
+        Name of the template that is extended.
+        If None, use app.config["MDFORM_EXTENDS"] which is "form.html" by default.
     read_only : bool
         If true, the folder will be rendered as read-only.
-    block :  str
-        Name of the block where the form is inserted.
-    extends : str
-        Name of the template that is extended.
     formatter : callable
         That format variable name and dict to string.
-    flash_form_errors : bool
-        Call flash errors. (default: True)
+    flash_form_errors : bool or callable
+        Call flash errors for a given form. (default: True)
+        Alternatively, a callable that takes a `flask_wtf.FlaskForm` form object
+        and calls `flask.flash` can be used to customize the error message.
     """
 
     def decorator(f):

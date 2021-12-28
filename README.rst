@@ -28,7 +28,7 @@
 flask-mdform
 ============
 
-If you arrive here, you probably know mdform_. If not, briefly it allows
+If you arrived here, you probably know mdform_. If not, briefly it allows
 you to write a form in an easy-to-read plain text format that can be
 parsed to produce a fully functional form. You can checkout
 its expressive syntax in the mdform_ repo.
@@ -47,7 +47,8 @@ Installation
 Usage
 -----
 
-Just put your markdwn form files in **templates/md/**, for example your **personal.md**
+Just put your markdwn form files in **templates/md/**, for example an hypothetical form
+to collect information named **personal.md** might look like this:
 
 .. code-block:: markdown
 
@@ -167,6 +168,42 @@ be used to customize the output:
   (Default: True)
 
 
+Rendering additional information
+--------------------------------
+
+In certain cases you might want to add additional variables to be rendered
+by jinja. This can be achieved by returning a second dictionary from `on_get_form`:
+
+.. code-block:: python
+
+    @app.route("/by_endpoint", methods=["GET"])
+    @on_get_form()
+    def personal():
+        return dict(name="John", age=42), dict(version="1.3.2)
+
+These extra variables can be inserted in your jinja_ template (
+``Version: {{ version }}``) but also within the mdform file itself:
+
+.. code-block:: markdown
+
+    name* = ___
+    age* = ###
+
+    Version: {{ version }}
+
+Remember that mdform_ just convert your markdown to html leaving these
+flask items (and any unknown field) untouched.
+
+It is important to realize that these variables will be passed onwards to
+render_template_ in the context variables and therefore their keys must
+be valid identifiers. Additionally, they cannot be ``form`` or ``meta`` as
+they are reserved by ``flask-mdform``.
+
+Why? you might ask. Well, ``form`` contains the Flask-WTF_  object. And
+``meta`` contains a dictionary with metadata information parsed from the
+markdown file using the Meta-data_ extension.
+
+
 Configuration Handling
 ----------------------
 
@@ -192,6 +229,8 @@ you to show and mdform. Ito has the same arguments as ``on_get_form`` and
 - **on_submit**: (callable) function to be called upon submission.
   Arguments are ``on_submit(form, **request.view_args)`` and should
   return the page to show.
+- **tmpl_context**: (dict) variables that should be available in the
+  context of the template.
 
 Finally, you can check some simple demonstrations in the the **examples** for folder.
 
@@ -214,3 +253,5 @@ see CHANGES_
 .. _Bootstrap4: https://pypi.org/project/Flask-Bootstrap4/
 .. _FlashError: https://flask.palletsprojects.com/en/2.0.x/patterns/flashing/
 .. _Jinja: https://jinja.palletsprojects.com/
+.. _render_template: https://flask.palletsprojects.com/en/2.0.x/api/#flask.render_template
+.. _meta-data: https://python-markdown.github.io/extensions/meta_data/

@@ -1,3 +1,5 @@
+import pytest
+
 from flask_mdform import from_mdstr, on_get_form, on_submit_form, render_mdform
 from flask_mdform.deco import in_app_from_mdfile
 from flask_mdform.testsuite import data_test
@@ -67,6 +69,27 @@ def test_get_form(app, client):
 
     ret = client.get("/peter@capusotto.com")
     assert ret.data.decode("utf-8") == data_test.RENDERED_JINJA_WTF_INDEX_PETER
+
+
+def test_get_form_tmpl_ctx(app, client):
+    @app.route("/<username>", methods=["GET"])
+    @on_get_form(mdfile="index_ver")
+    def bla(username):
+        return data_test.DATA[username], dict(version="1.x")
+
+    ret = client.get("/peter@capusotto.com")
+    assert (
+        ret.data.decode("utf-8")
+        == data_test.RENDERED_JINJA_WTF_INDEX_PETER + "\n<p>1.x</p>"
+    )
+
+    @app.route("/exc/<username>", methods=["GET"])
+    @on_get_form(mdfile="index")
+    def exc(username):
+        return data_test.DATA[username], dict(form="1.x")
+
+    with pytest.raises(ValueError):
+        client.get("/exc/peter@capusotto.com")
 
 
 def test_post_form(app, client):
