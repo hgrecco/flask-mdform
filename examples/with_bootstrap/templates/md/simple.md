@@ -16,7 +16,7 @@ Release Date = d/m/y
 
 Duration = hh:mm
 
-Color = () Yes () No 
+Color = () Yes () No
 
 Genres = [] Action [] Sci-Fi [] Comedy [] Documentary
 
