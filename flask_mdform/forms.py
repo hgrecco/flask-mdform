@@ -205,7 +205,13 @@ class ReadOnlyFormMixin:
 
 
 def from_mdstr(
-    mdstr, class_name, read_only=False, block=None, extends=None, formatter=None
+    mdstr,
+    class_name,
+    read_only=False,
+    block=None,
+    extends=None,
+    formatter=None,
+    extensions=(),
 ):
     """Generates form metadata, template, form from markdown form.
 
@@ -223,12 +229,16 @@ def from_mdstr(
         Name of the template that is extended.
     formatter : callable
         That format variable name and dict to string.
+    extensions : list
+        Python Markdown extensions to load.
 
     Returns
     -------
     dict, str, FlaskForm
     """
-    md = Markdown(extensions=["meta", FormExtension(formatter=formatter)])
+    md = Markdown(
+        extensions=["meta", FormExtension(formatter=formatter)] + list(extensions)
+    )
     html = md.convert(mdstr)
 
     if read_only:
@@ -252,7 +262,13 @@ def from_mdstr(
 
 
 def from_mdfile(
-    mdfile, class_name=None, read_only=False, block=None, extends=None, formatter=None
+    mdfile,
+    class_name=None,
+    read_only=False,
+    block=None,
+    extends=None,
+    formatter=None,
+    extensions=(),
 ):
     """Generates form metadata, template, form from markdown form.
 
@@ -270,6 +286,8 @@ def from_mdfile(
         Name of the template that is extended.
     formatter : callable
         That format variable name and dict to string.
+    extensions : list
+        Python Markdown extensions to load.
 
     Returns
     -------
@@ -312,6 +330,8 @@ def generate_form_cls(name, fields_by_label, base_cls=FlaskForm):
 
     setattr(cls, "submit", SubmitField("Submit"))
 
+    setattr(cls, "_mdform_def", fields_by_label)
+
     return cls
 
 
@@ -346,5 +366,7 @@ def generate_read_only_form_cls(name, fields_by_label, base_cls=FlaskForm):
             setattr(cls, label, fields.from_mdfield(field))
 
     cls._read_only_attrs = tuple(fields_by_label.keys())
+
+    setattr(cls, "_mdform_def", fields_by_label)
 
     return cls
